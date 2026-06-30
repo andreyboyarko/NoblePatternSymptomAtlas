@@ -8,11 +8,7 @@ struct NoblePatternSymptomAtlasApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                NoblePatternSymptomAtlasBackgroundView(NoblePatternSymptomAtlasOverlayOpacity: 0.45)
-                NoblePatternSymptomAtlasRootView(NoblePatternSymptomAtlasViewModel: NoblePatternSymptomAtlasViewModelInstance)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
+            NoblePatternSymptomAtlasAppGateView(NoblePatternSymptomAtlasViewModel: NoblePatternSymptomAtlasViewModelInstance)
             .preferredColorScheme(.light)
         }
     }

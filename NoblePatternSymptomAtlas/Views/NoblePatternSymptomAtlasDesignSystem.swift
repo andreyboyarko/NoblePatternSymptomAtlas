@@ -9,6 +9,8 @@ enum NoblePatternSymptomAtlasDesignSystem {
     static let NoblePatternSymptomAtlasSage = Color(red: 0.50, green: 0.65, blue: 0.58)
     static let NoblePatternSymptomAtlasBlue = Color(red: 0.39, green: 0.55, blue: 0.70)
     static let NoblePatternSymptomAtlasRose = Color(red: 0.78, green: 0.54, blue: 0.55)
+    static let NoblePatternSymptomAtlasOrange = Color(red: 0.90, green: 0.58, blue: 0.28)
+    static let NoblePatternSymptomAtlasTeal = Color(red: 0.35, green: 0.70, blue: 0.68)
     static let NoblePatternSymptomAtlasLine = Color(red: 0.88, green: 0.90, blue: 0.89)
 }
 
@@ -16,23 +18,31 @@ struct NoblePatternSymptomAtlasBackgroundView: View {
     let NoblePatternSymptomAtlasOverlayOpacity: Double
 
     var body: some View {
-        ZStack {
-            Image("Background")
-                .resizable()
-                .scaledToFill()
-                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                .clipped()
+        GeometryReader { NoblePatternSymptomAtlasGeometry in
+            ZStack {
+                Image("NoblePatternSymptomAtlasBackground")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(
+                        width: NoblePatternSymptomAtlasGeometry.size.width,
+                        height: NoblePatternSymptomAtlasGeometry.size.height
+                    )
+                    .clipped()
 
-            LinearGradient(
-                colors: [
-                    Color.white.opacity(NoblePatternSymptomAtlasOverlayOpacity),
-                    Color.white.opacity(NoblePatternSymptomAtlasOverlayOpacity + 0.12)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(NoblePatternSymptomAtlasOverlayOpacity),
+                        Color.white.opacity(NoblePatternSymptomAtlasOverlayOpacity + 0.12)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+            .frame(
+                width: NoblePatternSymptomAtlasGeometry.size.width,
+                height: NoblePatternSymptomAtlasGeometry.size.height
             )
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
     }
 }
@@ -46,11 +56,15 @@ struct NoblePatternSymptomAtlasCard<Content: View>: View {
 
     var body: some View {
         NoblePatternSymptomAtlasContent
-            .padding(16)
+            .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCard.opacity(0.88))
             .cornerRadius(20)
-            .shadow(color: Color.black.opacity(0.08), radius: 18, x: 0, y: 8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.white.opacity(0.55), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.05), radius: 14, x: 0, y: 7)
     }
 }
 

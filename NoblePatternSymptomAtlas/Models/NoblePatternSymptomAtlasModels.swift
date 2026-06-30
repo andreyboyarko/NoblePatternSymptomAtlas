@@ -132,6 +132,15 @@ struct NoblePatternSymptomAtlasSettings: Codable, Equatable {
     var NoblePatternSymptomAtlasAppIcon: String = "Heart Nodes"
 }
 
+struct NoblePatternSymptomAtlasPatternInsight: Identifiable, Equatable {
+    var id: String
+    var NoblePatternSymptomAtlasTitle: String
+    var NoblePatternSymptomAtlasText: String
+    var NoblePatternSymptomAtlasCategory: String
+    var NoblePatternSymptomAtlasDataCount: Int
+    var NoblePatternSymptomAtlasExplanation: String?
+}
+
 struct NoblePatternSymptomAtlasPatternSummary {
     var NoblePatternSymptomAtlasTopSymptoms: [(NoblePatternSymptomAtlasSymptom, Int)]
     var NoblePatternSymptomAtlasMostActiveTime: NoblePatternSymptomAtlasTimeBucket?
@@ -141,6 +150,7 @@ struct NoblePatternSymptomAtlasPatternSummary {
     var NoblePatternSymptomAtlasMoodPattern: String
     var NoblePatternSymptomAtlasMedicationPattern: String
     var NoblePatternSymptomAtlasRecentPattern: String
+    var NoblePatternSymptomAtlasInsights: [NoblePatternSymptomAtlasPatternInsight]
     var NoblePatternSymptomAtlasDailySeverity: [(Date, Double)]
     var NoblePatternSymptomAtlasTimeBuckets: [(NoblePatternSymptomAtlasTimeBucket, Int)]
     var NoblePatternSymptomAtlasHeatmap: [(Date, Int)]
@@ -154,6 +164,16 @@ struct NoblePatternSymptomAtlasPatternSummary {
         NoblePatternSymptomAtlasMoodPattern: "Possible pattern: Mood patterns will appear after more logs.",
         NoblePatternSymptomAtlasMedicationPattern: "Possible pattern: Medication patterns will appear after more logs.",
         NoblePatternSymptomAtlasRecentPattern: "Possible pattern: Add your first log to begin discovering patterns.",
+        NoblePatternSymptomAtlasInsights: [
+            NoblePatternSymptomAtlasPatternInsight(
+                id: "more-logs-needed",
+                NoblePatternSymptomAtlasTitle: "More Logs Needed",
+                NoblePatternSymptomAtlasText: "Possible pattern: Add more logs to unlock local insights.",
+                NoblePatternSymptomAtlasCategory: "Data",
+                NoblePatternSymptomAtlasDataCount: 0,
+                NoblePatternSymptomAtlasExplanation: "Insights are based only on logs saved on this device."
+            )
+        ],
         NoblePatternSymptomAtlasDailySeverity: [],
         NoblePatternSymptomAtlasTimeBuckets: NoblePatternSymptomAtlasTimeBucket.allCases.map { ($0, 0) },
         NoblePatternSymptomAtlasHeatmap: []

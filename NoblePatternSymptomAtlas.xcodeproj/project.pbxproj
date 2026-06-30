@@ -6,6 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		FC3A11482FEE890300AFAB72 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FC3A110F2FEE890200AFAB72 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FC3A11162FEE890200AFAB72;
+			remoteInfo = NoblePatternSymptomAtlas;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		FC3A11172FEE890200AFAB72 /* NoblePatternSymptomAtlas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NoblePatternSymptomAtlas.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC3A11402FEE890300AFAB72 /* NoblePatternSymptomAtlasTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoblePatternSymptomAtlasTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -109,16 +119,6 @@
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
-
-/* Begin PBXContainerItemProxy section */
-		FC3A11482FEE890300AFAB72 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FC3A110F2FEE890200AFAB72 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = FC3A11162FEE890200AFAB72;
-			remoteInfo = NoblePatternSymptomAtlas;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXProject section */
 		FC3A110F2FEE890200AFAB72 /* Project object */ = {

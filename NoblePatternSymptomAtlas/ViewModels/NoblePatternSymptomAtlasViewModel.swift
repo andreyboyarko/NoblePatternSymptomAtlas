@@ -33,7 +33,15 @@ final class NoblePatternSymptomAtlasViewModel: ObservableObject {
     }
 
     func NoblePatternSymptomAtlasLoad() {
-        NoblePatternSymptomAtlasLogs = NoblePatternSymptomAtlasPersistence.NoblePatternSymptomAtlasLoadLogs()
+        let NoblePatternSymptomAtlasSavedLogs = NoblePatternSymptomAtlasPersistence.NoblePatternSymptomAtlasLoadLogs()
+        if NoblePatternSymptomAtlasSavedLogs.isEmpty && !NoblePatternSymptomAtlasPersistence.NoblePatternSymptomAtlasHasSeededSampleData() {
+            let NoblePatternSymptomAtlasSampleLogs = NoblePatternSymptomAtlasSampleDataFactory.NoblePatternSymptomAtlasMakeLogs()
+            NoblePatternSymptomAtlasPersistence.NoblePatternSymptomAtlasSaveLogs(NoblePatternSymptomAtlasSampleLogs)
+            NoblePatternSymptomAtlasPersistence.NoblePatternSymptomAtlasMarkSampleDataSeeded()
+            NoblePatternSymptomAtlasLogs = NoblePatternSymptomAtlasSampleLogs
+        } else {
+            NoblePatternSymptomAtlasLogs = NoblePatternSymptomAtlasSavedLogs
+        }
         NoblePatternSymptomAtlasSettingsState = NoblePatternSymptomAtlasPersistence.NoblePatternSymptomAtlasLoadSettings()
     }
 
