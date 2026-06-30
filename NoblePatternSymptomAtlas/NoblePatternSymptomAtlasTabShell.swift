@@ -16,6 +16,15 @@ final class NoblePatternSymptomAtlasAppDelegate: NSObject, UIApplicationDelegate
 
         let NoblePatternSymptomAtlasTabBarAppearance = UITabBarAppearance()
         NoblePatternSymptomAtlasTabBarAppearance.configureWithTransparentBackground()
+        let NoblePatternSymptomAtlasTabFont = NoblePatternSymptomAtlasRoundedFont(size: 11, weight: .semibold)
+        NoblePatternSymptomAtlasTabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .font: NoblePatternSymptomAtlasTabFont,
+            .foregroundColor: UIColor(red: 0.16, green: 0.18, blue: 0.20, alpha: 0.82)
+        ]
+        NoblePatternSymptomAtlasTabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .font: NoblePatternSymptomAtlasTabFont,
+            .foregroundColor: UIColor(red: 0.36, green: 0.55, blue: 0.48, alpha: 1)
+        ]
 
         UITabBar.appearance().tintColor = UIColor(red: 0.36, green: 0.55, blue: 0.48, alpha: 1)
         UITabBar.appearance().standardAppearance = NoblePatternSymptomAtlasTabBarAppearance
@@ -25,6 +34,14 @@ final class NoblePatternSymptomAtlasAppDelegate: NSObject, UIApplicationDelegate
         UINavigationBar.appearance().scrollEdgeAppearance = NoblePatternSymptomAtlasNavigationAppearance
         UINavigationBar.appearance().compactAppearance = NoblePatternSymptomAtlasNavigationAppearance
         return true
+    }
+
+    private func NoblePatternSymptomAtlasRoundedFont(size NoblePatternSymptomAtlasSize: CGFloat, weight NoblePatternSymptomAtlasWeight: UIFont.Weight) -> UIFont {
+        let NoblePatternSymptomAtlasFont = UIFont.systemFont(ofSize: NoblePatternSymptomAtlasSize, weight: NoblePatternSymptomAtlasWeight)
+        guard let NoblePatternSymptomAtlasDescriptor = NoblePatternSymptomAtlasFont.fontDescriptor.withDesign(.rounded) else {
+            return NoblePatternSymptomAtlasFont
+        }
+        return UIFont(descriptor: NoblePatternSymptomAtlasDescriptor, size: NoblePatternSymptomAtlasSize)
     }
 }
 

@@ -59,7 +59,7 @@ struct NoblePatternSymptomAtlasLoadingView: View {
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                         .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
                     Text("Symptom Atlas")
-                        .font(.headline)
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
                         .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
                 }
                 .opacity(NoblePatternSymptomAtlasShowTitle ? 1 : 0)
@@ -105,7 +105,7 @@ struct NoblePatternSymptomAtlasLoadingStatusView: View {
     var body: some View {
         HStack(spacing: 10) {
             Text("Loading")
-                .font(.subheadline.weight(.semibold))
+                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
                 .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
 
             Circle()
@@ -118,11 +118,11 @@ struct NoblePatternSymptomAtlasLoadingStatusView: View {
                 .rotationEffect(.degrees(NoblePatternSymptomAtlasRotation))
         }
         .frame(maxWidth: .infinity, minHeight: 58)
-        .background(Color.white.opacity(0.74))
+        .background(Color.white.opacity(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSoftGlassOpacity))
         .cornerRadius(22)
         .overlay(
             RoundedRectangle(cornerRadius: 22)
-                .stroke(Color.white.opacity(0.62), lineWidth: 1)
+                .stroke(Color.white.opacity(0.46), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.05), radius: 14, x: 0, y: 8)
     }
@@ -139,7 +139,7 @@ struct NoblePatternSymptomAtlasPatternRevealMark: View {
 
             ZStack {
                 Circle()
-                    .fill(Color.white.opacity(0.88))
+                    .fill(Color.white.opacity(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasStrongGlassOpacity))
                     .shadow(color: Color.black.opacity(0.07), radius: 18, x: 0, y: 10)
 
                 Circle()
@@ -232,10 +232,10 @@ struct NoblePatternSymptomAtlasOnboardingView: View {
                 NoblePatternSymptomAtlasBrandMark(NoblePatternSymptomAtlasSize: 44)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Noble Pattern")
-                        .font(.headline.weight(.semibold))
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
                         .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
                     Text("Offline symptom tracking")
-                        .font(.caption)
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionFont)
                         .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
                 }
                 Spacer()
@@ -271,7 +271,7 @@ struct NoblePatternSymptomAtlasOnboardingView: View {
                     }
                 } label: {
                     Text(NoblePatternSymptomAtlasPage == NoblePatternSymptomAtlasPages.count - 1 ? "Start Tracking" : "Continue")
-                        .font(.headline)
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity, minHeight: 52)
                         .background(
@@ -293,7 +293,7 @@ struct NoblePatternSymptomAtlasOnboardingView: View {
                     NoblePatternSymptomAtlasComplete()
                 } label: {
                     Text("Skip")
-                        .font(.subheadline.weight(.semibold))
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
                         .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
                         .frame(maxWidth: .infinity, minHeight: 42)
                 }
@@ -328,7 +328,7 @@ struct NoblePatternSymptomAtlasOnboardingPageView: View {
                 .font(.system(size: 48, weight: .semibold))
                 .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSage)
                 .frame(width: 108, height: 108)
-                .background(Color.white.opacity(0.82))
+                .background(Color.white.opacity(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasStrongGlassOpacity))
                 .clipShape(Circle())
                 .shadow(color: Color.black.opacity(0.06), radius: 16, x: 0, y: 9)
 
@@ -340,7 +340,7 @@ struct NoblePatternSymptomAtlasOnboardingPageView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(NoblePatternSymptomAtlasPage.NoblePatternSymptomAtlasText)
-                    .font(.body)
+                    .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasBodyFont)
                     .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)

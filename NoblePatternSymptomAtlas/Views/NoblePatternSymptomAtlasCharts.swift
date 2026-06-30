@@ -10,7 +10,7 @@ struct NoblePatternSymptomAtlasLineChart: View {
                     .fill(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasBackground)
                 if NoblePatternSymptomAtlasValues.count < 2 {
                     Text("More logs needed")
-                        .font(.caption)
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionFont)
                         .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -62,7 +62,7 @@ struct NoblePatternSymptomAtlasBarChart: View {
                         .fill(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSage)
                         .frame(height: NoblePatternSymptomAtlasHeight(for: NoblePatternSymptomAtlasValue))
                     Text(NoblePatternSymptomAtlasLabel.prefix(3))
-                        .font(.caption2)
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaption2Font)
                         .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
                 }
                 .frame(maxWidth: .infinity)

@@ -4,6 +4,9 @@ import SafariServices
 enum NoblePatternSymptomAtlasDesignSystem {
     static let NoblePatternSymptomAtlasBackground = Color(red: 0.96, green: 0.97, blue: 0.96)
     static let NoblePatternSymptomAtlasCard = Color.white
+    static let NoblePatternSymptomAtlasGlassOpacity = 0.76
+    static let NoblePatternSymptomAtlasSoftGlassOpacity = 0.68
+    static let NoblePatternSymptomAtlasStrongGlassOpacity = 0.82
     static let NoblePatternSymptomAtlasText = Color(red: 0.16, green: 0.18, blue: 0.20)
     static let NoblePatternSymptomAtlasMuted = Color(red: 0.43, green: 0.47, blue: 0.50)
     static let NoblePatternSymptomAtlasSage = Color(red: 0.50, green: 0.65, blue: 0.58)
@@ -12,6 +15,20 @@ enum NoblePatternSymptomAtlasDesignSystem {
     static let NoblePatternSymptomAtlasOrange = Color(red: 0.90, green: 0.58, blue: 0.28)
     static let NoblePatternSymptomAtlasTeal = Color(red: 0.35, green: 0.70, blue: 0.68)
     static let NoblePatternSymptomAtlasLine = Color(red: 0.88, green: 0.90, blue: 0.89)
+
+    static let NoblePatternSymptomAtlasLargeTitleFont = Font.system(size: 34, weight: .bold, design: .rounded)
+    static let NoblePatternSymptomAtlasScreenTitleFont = Font.system(size: 32, weight: .bold, design: .rounded)
+    static let NoblePatternSymptomAtlasOnboardingTitleFont = Font.system(size: 30, weight: .bold, design: .rounded)
+    static let NoblePatternSymptomAtlasTitleFont = Font.system(size: 22, weight: .semibold, design: .rounded)
+    static let NoblePatternSymptomAtlasHeadlineFont = Font.system(size: 17, weight: .semibold, design: .rounded)
+    static let NoblePatternSymptomAtlasBodyFont = Font.system(size: 17, weight: .regular, design: .rounded)
+    static let NoblePatternSymptomAtlasSubheadlineFont = Font.system(size: 15, weight: .regular, design: .rounded)
+    static let NoblePatternSymptomAtlasSubheadlineSemiboldFont = Font.system(size: 15, weight: .semibold, design: .rounded)
+    static let NoblePatternSymptomAtlasCaptionFont = Font.system(size: 12, weight: .regular, design: .rounded)
+    static let NoblePatternSymptomAtlasCaptionSemiboldFont = Font.system(size: 12, weight: .semibold, design: .rounded)
+    static let NoblePatternSymptomAtlasCaptionBoldFont = Font.system(size: 12, weight: .bold, design: .rounded)
+    static let NoblePatternSymptomAtlasCaption2Font = Font.system(size: 11, weight: .regular, design: .rounded)
+    static let NoblePatternSymptomAtlasCaption2SemiboldFont = Font.system(size: 11, weight: .semibold, design: .rounded)
 }
 
 struct NoblePatternSymptomAtlasBackgroundView: View {
@@ -58,13 +75,13 @@ struct NoblePatternSymptomAtlasCard<Content: View>: View {
         NoblePatternSymptomAtlasContent
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCard.opacity(0.88))
+            .background(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCard.opacity(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasGlassOpacity))
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.white.opacity(0.55), lineWidth: 1)
+                    .stroke(Color.white.opacity(0.46), lineWidth: 1)
             )
-            .shadow(color: Color.black.opacity(0.05), radius: 14, x: 0, y: 7)
+            .shadow(color: Color.black.opacity(0.045), radius: 14, x: 0, y: 7)
     }
 }
 
@@ -73,7 +90,7 @@ struct NoblePatternSymptomAtlasSectionTitle: View {
 
     var body: some View {
         Text(NoblePatternSymptomAtlasTitle)
-            .font(.headline)
+            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
             .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 4)
