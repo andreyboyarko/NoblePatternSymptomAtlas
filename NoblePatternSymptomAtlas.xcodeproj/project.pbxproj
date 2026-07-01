@@ -6,19 +6,8 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXContainerItemProxy section */
-		FC3A11482FEE890300AFAB72 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FC3A110F2FEE890200AFAB72 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = FC3A11162FEE890200AFAB72;
-			remoteInfo = NoblePatternSymptomAtlas;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		FC3A11172FEE890200AFAB72 /* NoblePatternSymptomAtlas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NoblePatternSymptomAtlas.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		FC3A11402FEE890300AFAB72 /* NoblePatternSymptomAtlasTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoblePatternSymptomAtlasTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -27,22 +16,10 @@
 			path = NoblePatternSymptomAtlas;
 			sourceTree = "<group>";
 		};
-		FC3A11412FEE890300AFAB72 /* NoblePatternSymptomAtlasTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = NoblePatternSymptomAtlasTests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		FC3A11142FEE890200AFAB72 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		FC3A11432FEE890300AFAB72 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -56,7 +33,6 @@
 			isa = PBXGroup;
 			children = (
 				FC3A11192FEE890200AFAB72 /* NoblePatternSymptomAtlas */,
-				FC3A11412FEE890300AFAB72 /* NoblePatternSymptomAtlasTests */,
 				FC3A11182FEE890200AFAB72 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,7 +41,6 @@
 			isa = PBXGroup;
 			children = (
 				FC3A11172FEE890200AFAB72 /* NoblePatternSymptomAtlas.app */,
-				FC3A11402FEE890300AFAB72 /* NoblePatternSymptomAtlasTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,29 +70,6 @@
 			productReference = FC3A11172FEE890200AFAB72 /* NoblePatternSymptomAtlas.app */;
 			productType = "com.apple.product-type.application";
 		};
-		FC3A11472FEE890300AFAB72 /* NoblePatternSymptomAtlasTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = FC3A114A2FEE890300AFAB72 /* Build configuration list for PBXNativeTarget "NoblePatternSymptomAtlasTests" */;
-			buildPhases = (
-				FC3A11422FEE890300AFAB72 /* Sources */,
-				FC3A11432FEE890300AFAB72 /* Frameworks */,
-				FC3A11442FEE890300AFAB72 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				FC3A11492FEE890300AFAB72 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				FC3A11412FEE890300AFAB72 /* NoblePatternSymptomAtlasTests */,
-			);
-			name = NoblePatternSymptomAtlasTests;
-			packageProductDependencies = (
-			);
-			productName = NoblePatternSymptomAtlasTests;
-			productReference = FC3A11402FEE890300AFAB72 /* NoblePatternSymptomAtlasTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -130,10 +82,6 @@
 				TargetAttributes = {
 					FC3A11162FEE890200AFAB72 = {
 						CreatedOnToolsVersion = 26.3;
-					};
-					FC3A11472FEE890300AFAB72 = {
-						CreatedOnToolsVersion = 26.3;
-						TestTargetID = FC3A11162FEE890200AFAB72;
 					};
 				};
 			};
@@ -152,20 +100,12 @@
 			projectRoot = "";
 			targets = (
 				FC3A11162FEE890200AFAB72 /* NoblePatternSymptomAtlas */,
-				FC3A11472FEE890300AFAB72 /* NoblePatternSymptomAtlasTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		FC3A11152FEE890200AFAB72 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		FC3A11442FEE890300AFAB72 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -182,22 +122,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		FC3A11422FEE890300AFAB72 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		FC3A11492FEE890300AFAB72 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = FC3A11162FEE890200AFAB72 /* NoblePatternSymptomAtlas */;
-			targetProxy = FC3A11482FEE890300AFAB72 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		FC3A11202FEE890300AFAB72 /* Debug */ = {
@@ -393,54 +318,6 @@
 			};
 			name = Release;
 		};
-		FC3A114B2FEE890300AFAB72 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.poor.red.osteriscs.TravelToolkitStayPrepared.NoblePatternSymptomAtlasTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NoblePatternSymptomAtlas.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/NoblePatternSymptomAtlas";
-			};
-			name = Debug;
-		};
-		FC3A114C2FEE890300AFAB72 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.poor.red.osteriscs.TravelToolkitStayPrepared.NoblePatternSymptomAtlasTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NoblePatternSymptomAtlas.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/NoblePatternSymptomAtlas";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -458,15 +335,6 @@
 			buildConfigurations = (
 				FC3A11232FEE890300AFAB72 /* Debug */,
 				FC3A11242FEE890300AFAB72 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		FC3A114A2FEE890300AFAB72 /* Build configuration list for PBXNativeTarget "NoblePatternSymptomAtlasTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				FC3A114B2FEE890300AFAB72 /* Debug */,
-				FC3A114C2FEE890300AFAB72 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

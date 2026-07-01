@@ -118,13 +118,6 @@ struct NoblePatternSymptomAtlasLoadingStatusView: View {
                 .rotationEffect(.degrees(NoblePatternSymptomAtlasRotation))
         }
         .frame(maxWidth: .infinity, minHeight: 58)
-        .background(Color.white.opacity(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSoftGlassOpacity))
-        .cornerRadius(22)
-        .overlay(
-            RoundedRectangle(cornerRadius: 22)
-                .stroke(Color.white.opacity(0.46), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.05), radius: 14, x: 0, y: 8)
     }
 }
 

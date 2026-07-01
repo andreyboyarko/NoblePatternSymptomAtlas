@@ -85,7 +85,7 @@ enum NoblePatternSymptomAtlasTimeBucket: String, CaseIterable, Codable, Identifi
 
     var id: String { rawValue }
 
-    static func NoblePatternSymptomAtlasBucket(for NoblePatternSymptomAtlasDate: Date, calendar NoblePatternSymptomAtlasCalendar: Calendar = .current) -> NoblePatternSymptomAtlasTimeBucket {
+    nonisolated static func NoblePatternSymptomAtlasBucket(for NoblePatternSymptomAtlasDate: Date, calendar NoblePatternSymptomAtlasCalendar: Calendar = .current) -> NoblePatternSymptomAtlasTimeBucket {
         let NoblePatternSymptomAtlasHour = NoblePatternSymptomAtlasCalendar.component(.hour, from: NoblePatternSymptomAtlasDate)
         switch NoblePatternSymptomAtlasHour {
         case 5..<12: return .morning
@@ -115,6 +115,20 @@ struct NoblePatternSymptomAtlasLogEntry: Codable, Identifiable, Equatable {
     var NoblePatternSymptomAtlasMeals: String
     var NoblePatternSymptomAtlasMedication: NoblePatternSymptomAtlasMedicationEntry?
     var NoblePatternSymptomAtlasNotes: String
+}
+
+struct NoblePatternSymptomAtlasTrackedSymptom: Codable, Identifiable, Equatable {
+    var id: UUID = UUID()
+    var NoblePatternSymptomAtlasSymptom: NoblePatternSymptomAtlasSymptom
+    var NoblePatternSymptomAtlasStartDate: Date = Date()
+    var NoblePatternSymptomAtlasIsActive: Bool = true
+}
+
+struct NoblePatternSymptomAtlasTrackedSymptomCheckIn: Codable, Identifiable, Equatable {
+    var id: UUID = UUID()
+    var NoblePatternSymptomAtlasSymptom: NoblePatternSymptomAtlasSymptom
+    var NoblePatternSymptomAtlasDate: Date
+    var NoblePatternSymptomAtlasHadSymptom: Bool
 }
 
 struct NoblePatternSymptomAtlasReportFilter: Codable, Equatable {
@@ -178,4 +192,40 @@ struct NoblePatternSymptomAtlasPatternSummary {
         NoblePatternSymptomAtlasTimeBuckets: NoblePatternSymptomAtlasTimeBucket.allCases.map { ($0, 0) },
         NoblePatternSymptomAtlasHeatmap: []
     )
+}
+
+struct NoblePatternSymptomAtlasSymptomDetailSummary {
+    var NoblePatternSymptomAtlasSymptom: NoblePatternSymptomAtlasSymptom
+    var NoblePatternSymptomAtlasLoggedCount: Int
+    var NoblePatternSymptomAtlasAverageSeverity: Double?
+    var NoblePatternSymptomAtlasCommonTime: NoblePatternSymptomAtlasTimeBucket?
+    var NoblePatternSymptomAtlasRecentEntries: [NoblePatternSymptomAtlasLogEntry]
+    var NoblePatternSymptomAtlasRelatedPatterns: [String]
+}
+
+struct NoblePatternSymptomAtlasWeeklyReview {
+    var NoblePatternSymptomAtlasWeekStart: Date
+    var NoblePatternSymptomAtlasWeekEnd: Date
+    var NoblePatternSymptomAtlasLogsThisWeek: Int
+    var NoblePatternSymptomAtlasMostCommonSymptom: NoblePatternSymptomAtlasSymptom?
+    var NoblePatternSymptomAtlasAverageSeverity: Double?
+    var NoblePatternSymptomAtlasQuietDays: [Date]
+    var NoblePatternSymptomAtlasMostActiveTime: NoblePatternSymptomAtlasTimeBucket?
+    var NoblePatternSymptomAtlasSummaryText: String
+}
+
+struct NoblePatternSymptomAtlasReportPreview {
+    var NoblePatternSymptomAtlasEntryCount: Int
+    var NoblePatternSymptomAtlasIncludedSections: [String]
+    var NoblePatternSymptomAtlasTopSymptoms: [(NoblePatternSymptomAtlasSymptom, Int)]
+    var NoblePatternSymptomAtlasRecentEntries: [NoblePatternSymptomAtlasLogEntry]
+    var NoblePatternSymptomAtlasPatternSummary: String
+}
+
+struct NoblePatternSymptomAtlasTrackedSymptomStats {
+    var NoblePatternSymptomAtlasDaysAnswered: Int
+    var NoblePatternSymptomAtlasYesCount: Int
+    var NoblePatternSymptomAtlasNoCount: Int
+    var NoblePatternSymptomAtlasCurrentStreak: Int
+    var NoblePatternSymptomAtlasMissedDays: Int
 }

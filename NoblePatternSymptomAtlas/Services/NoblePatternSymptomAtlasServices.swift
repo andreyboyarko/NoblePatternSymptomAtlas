@@ -6,6 +6,8 @@ final class NoblePatternSymptomAtlasPersistenceService {
     private let NoblePatternSymptomAtlasLogsKey = "NoblePatternSymptomAtlas.logs"
     private let NoblePatternSymptomAtlasSettingsKey = "NoblePatternSymptomAtlas.settings"
     private let NoblePatternSymptomAtlasSampleDataSeededKey = "NoblePatternSymptomAtlas.sampleDataSeeded"
+    private let NoblePatternSymptomAtlasTrackedSymptomsKey = "NoblePatternSymptomAtlas.trackedSymptoms"
+    private let NoblePatternSymptomAtlasTrackedSymptomCheckInsKey = "NoblePatternSymptomAtlas.trackedSymptomCheckIns"
     private let NoblePatternSymptomAtlasEncoder = JSONEncoder()
     private let NoblePatternSymptomAtlasDecoder = JSONDecoder()
 
@@ -39,6 +41,32 @@ final class NoblePatternSymptomAtlasPersistenceService {
         NoblePatternSymptomAtlasDefaults.set(NoblePatternSymptomAtlasData, forKey: NoblePatternSymptomAtlasSettingsKey)
     }
 
+    func NoblePatternSymptomAtlasLoadTrackedSymptoms() -> [NoblePatternSymptomAtlasTrackedSymptom] {
+        guard let NoblePatternSymptomAtlasData = NoblePatternSymptomAtlasDefaults.data(forKey: NoblePatternSymptomAtlasTrackedSymptomsKey),
+              let NoblePatternSymptomAtlasTrackedSymptoms = try? NoblePatternSymptomAtlasDecoder.decode([NoblePatternSymptomAtlasTrackedSymptom].self, from: NoblePatternSymptomAtlasData) else {
+            return []
+        }
+        return NoblePatternSymptomAtlasTrackedSymptoms
+    }
+
+    func NoblePatternSymptomAtlasSaveTrackedSymptoms(_ NoblePatternSymptomAtlasTrackedSymptoms: [NoblePatternSymptomAtlasTrackedSymptom]) {
+        guard let NoblePatternSymptomAtlasData = try? NoblePatternSymptomAtlasEncoder.encode(NoblePatternSymptomAtlasTrackedSymptoms) else { return }
+        NoblePatternSymptomAtlasDefaults.set(NoblePatternSymptomAtlasData, forKey: NoblePatternSymptomAtlasTrackedSymptomsKey)
+    }
+
+    func NoblePatternSymptomAtlasLoadTrackedSymptomCheckIns() -> [NoblePatternSymptomAtlasTrackedSymptomCheckIn] {
+        guard let NoblePatternSymptomAtlasData = NoblePatternSymptomAtlasDefaults.data(forKey: NoblePatternSymptomAtlasTrackedSymptomCheckInsKey),
+              let NoblePatternSymptomAtlasCheckIns = try? NoblePatternSymptomAtlasDecoder.decode([NoblePatternSymptomAtlasTrackedSymptomCheckIn].self, from: NoblePatternSymptomAtlasData) else {
+            return []
+        }
+        return NoblePatternSymptomAtlasCheckIns.sorted { $0.NoblePatternSymptomAtlasDate > $1.NoblePatternSymptomAtlasDate }
+    }
+
+    func NoblePatternSymptomAtlasSaveTrackedSymptomCheckIns(_ NoblePatternSymptomAtlasCheckIns: [NoblePatternSymptomAtlasTrackedSymptomCheckIn]) {
+        guard let NoblePatternSymptomAtlasData = try? NoblePatternSymptomAtlasEncoder.encode(NoblePatternSymptomAtlasCheckIns) else { return }
+        NoblePatternSymptomAtlasDefaults.set(NoblePatternSymptomAtlasData, forKey: NoblePatternSymptomAtlasTrackedSymptomCheckInsKey)
+    }
+
     func NoblePatternSymptomAtlasHasSeededSampleData() -> Bool {
         NoblePatternSymptomAtlasDefaults.bool(forKey: NoblePatternSymptomAtlasSampleDataSeededKey)
     }
@@ -50,11 +78,46 @@ final class NoblePatternSymptomAtlasPersistenceService {
     func NoblePatternSymptomAtlasReset() {
         NoblePatternSymptomAtlasDefaults.removeObject(forKey: NoblePatternSymptomAtlasLogsKey)
         NoblePatternSymptomAtlasDefaults.removeObject(forKey: NoblePatternSymptomAtlasSettingsKey)
+        NoblePatternSymptomAtlasDefaults.removeObject(forKey: NoblePatternSymptomAtlasTrackedSymptomsKey)
+        NoblePatternSymptomAtlasDefaults.removeObject(forKey: NoblePatternSymptomAtlasTrackedSymptomCheckInsKey)
         NoblePatternSymptomAtlasMarkSampleDataSeeded()
     }
 }
 
 enum NoblePatternSymptomAtlasSampleDataFactory {
+    static let NoblePatternSymptomAtlasSampleNotePrefix = "Sample data: "
+    private static let NoblePatternSymptomAtlasLegacySampleNotes: Set<String> = [
+        "Woke with a headache after short sleep.",
+        "Felt better by afternoon.",
+        "Mild nausea after breakfast.",
+        "Long workday with elevated stress.",
+        "Worked late and slept poorly.",
+        "Severity lower later in the day.",
+        "Low energy but manageable.",
+        "Stress rose in the evening.",
+        "Headache appeared after less than six hours of sleep.",
+        "Seasonal symptoms were mild.",
+        "High stress morning.",
+        "Sat at desk for most of the day.",
+        "Stomach discomfort after a heavy meal.",
+        "Rest helped later in the day.",
+        "Short sleep and early headache.",
+        "Severity lower after medication and food.",
+        "Brief dizziness after workout.",
+        "Evening tiredness.",
+        "Poor sleep before a busy morning.",
+        "High stress afternoon.",
+        "Mild allergy symptoms.",
+        "Logged tightness during a stressful evening.",
+        "Headache after waking early.",
+        "Brief symptom noted before sleep."
+    ]
+
+    static func NoblePatternSymptomAtlasIsSampleLog(_ NoblePatternSymptomAtlasLog: NoblePatternSymptomAtlasLogEntry) -> Bool {
+        NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasNotes.hasPrefix(NoblePatternSymptomAtlasSampleNotePrefix) ||
+        NoblePatternSymptomAtlasLegacySampleNotes.contains(NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasNotes)
+    }
+
     static func NoblePatternSymptomAtlasMakeLogs(now NoblePatternSymptomAtlasNow: Date = Date(), calendar NoblePatternSymptomAtlasCalendar: Calendar = .current) -> [NoblePatternSymptomAtlasLogEntry] {
         [
             NoblePatternSymptomAtlasMakeLog(dayOffset: 0, hour: 8, minute: 20, symptoms: [.headache], severity: 6, mood: .low, sleepHours: 5, stress: .high, activity: .work, meals: "Coffee and toast", medicationName: "Ibuprofen", medicationDose: "200mg", notes: "Woke with a headache after short sleep.", now: NoblePatternSymptomAtlasNow, calendar: NoblePatternSymptomAtlasCalendar),
@@ -126,7 +189,7 @@ enum NoblePatternSymptomAtlasSampleDataFactory {
             NoblePatternSymptomAtlasActivity: NoblePatternSymptomAtlasActivity,
             NoblePatternSymptomAtlasMeals: NoblePatternSymptomAtlasMeals,
             NoblePatternSymptomAtlasMedication: NoblePatternSymptomAtlasMedication,
-            NoblePatternSymptomAtlasNotes: NoblePatternSymptomAtlasNotes
+            NoblePatternSymptomAtlasNotes: NoblePatternSymptomAtlasSampleNotePrefix + NoblePatternSymptomAtlasNotes
         )
     }
 }
@@ -519,6 +582,124 @@ enum NoblePatternSymptomAtlasAnalyticsService {
     private static func NoblePatternSymptomAtlasFormat(_ NoblePatternSymptomAtlasValue: Double) -> String {
         String(format: "%.1f", NoblePatternSymptomAtlasValue)
     }
+
+    static func NoblePatternSymptomAtlasMakeSymptomDetail(
+        for NoblePatternSymptomAtlasSymptom: NoblePatternSymptomAtlasSymptom,
+        logs NoblePatternSymptomAtlasLogs: [NoblePatternSymptomAtlasLogEntry],
+        calendar NoblePatternSymptomAtlasCalendar: Calendar = .current
+    ) -> NoblePatternSymptomAtlasSymptomDetailSummary {
+        let NoblePatternSymptomAtlasSymptomLogs = NoblePatternSymptomAtlasLogs
+            .filter { $0.NoblePatternSymptomAtlasSymptoms.contains(NoblePatternSymptomAtlasSymptom) }
+            .sorted { $0.NoblePatternSymptomAtlasDate > $1.NoblePatternSymptomAtlasDate }
+        let NoblePatternSymptomAtlasAverageSeverity = NoblePatternSymptomAtlasSymptomLogs.isEmpty ? nil : NoblePatternSymptomAtlasSymptomLogs.map(\.NoblePatternSymptomAtlasSeverity).reduce(0, +) / Double(NoblePatternSymptomAtlasSymptomLogs.count)
+        let NoblePatternSymptomAtlasBuckets = Dictionary(grouping: NoblePatternSymptomAtlasSymptomLogs) {
+            NoblePatternSymptomAtlasTimeBucket.NoblePatternSymptomAtlasBucket(for: $0.NoblePatternSymptomAtlasDate, calendar: NoblePatternSymptomAtlasCalendar)
+        }
+        let NoblePatternSymptomAtlasCommonTime = NoblePatternSymptomAtlasBuckets.max { $0.value.count < $1.value.count }?.key
+        let NoblePatternSymptomAtlasLowSleepCount = NoblePatternSymptomAtlasSymptomLogs.filter { $0.NoblePatternSymptomAtlasSleepHours < 6 }.count
+        let NoblePatternSymptomAtlasHighStressCount = NoblePatternSymptomAtlasSymptomLogs.filter { $0.NoblePatternSymptomAtlasStress == .high }.count
+        let NoblePatternSymptomAtlasPatterns = [
+            NoblePatternSymptomAtlasLowSleepCount > 0 ? "Possible correlation: \(NoblePatternSymptomAtlasSymptom.rawValue) appears in \(NoblePatternSymptomAtlasLowSleepCount) logs after sleep under 6h." : nil,
+            NoblePatternSymptomAtlasHighStressCount > 0 ? "Possible correlation: \(NoblePatternSymptomAtlasSymptom.rawValue) appears in \(NoblePatternSymptomAtlasHighStressCount) high stress logs." : nil,
+            NoblePatternSymptomAtlasCommonTime.map { "Possible pattern: \(NoblePatternSymptomAtlasSymptom.rawValue) appears most often in the \($0.rawValue.lowercased())." }
+        ].compactMap { $0 }
+
+        return NoblePatternSymptomAtlasSymptomDetailSummary(
+            NoblePatternSymptomAtlasSymptom: NoblePatternSymptomAtlasSymptom,
+            NoblePatternSymptomAtlasLoggedCount: NoblePatternSymptomAtlasSymptomLogs.count,
+            NoblePatternSymptomAtlasAverageSeverity: NoblePatternSymptomAtlasAverageSeverity,
+            NoblePatternSymptomAtlasCommonTime: NoblePatternSymptomAtlasCommonTime,
+            NoblePatternSymptomAtlasRecentEntries: Array(NoblePatternSymptomAtlasSymptomLogs.prefix(5)),
+            NoblePatternSymptomAtlasRelatedPatterns: NoblePatternSymptomAtlasPatterns.isEmpty ? ["Possible pattern: More logs needed for this symptom."] : NoblePatternSymptomAtlasPatterns
+        )
+    }
+
+    static func NoblePatternSymptomAtlasMakeWeeklyReview(
+        logs NoblePatternSymptomAtlasLogs: [NoblePatternSymptomAtlasLogEntry],
+        week NoblePatternSymptomAtlasWeek: Date = Date(),
+        calendar NoblePatternSymptomAtlasCalendar: Calendar = .current
+    ) -> NoblePatternSymptomAtlasWeeklyReview {
+        let NoblePatternSymptomAtlasInterval = NoblePatternSymptomAtlasCalendar.dateInterval(of: .weekOfYear, for: NoblePatternSymptomAtlasWeek)
+        let NoblePatternSymptomAtlasStart = NoblePatternSymptomAtlasInterval?.start ?? NoblePatternSymptomAtlasCalendar.startOfDay(for: NoblePatternSymptomAtlasWeek)
+        let NoblePatternSymptomAtlasEnd = NoblePatternSymptomAtlasInterval?.end ?? (NoblePatternSymptomAtlasCalendar.date(byAdding: .day, value: 7, to: NoblePatternSymptomAtlasStart) ?? NoblePatternSymptomAtlasStart)
+        let NoblePatternSymptomAtlasWeekLogs = NoblePatternSymptomAtlasLogs.filter { $0.NoblePatternSymptomAtlasDate >= NoblePatternSymptomAtlasStart && $0.NoblePatternSymptomAtlasDate < NoblePatternSymptomAtlasEnd }
+        let NoblePatternSymptomAtlasMostCommonSymptom = NoblePatternSymptomAtlasMostCommonSymptom(in: NoblePatternSymptomAtlasWeekLogs)
+        let NoblePatternSymptomAtlasAverageSeverity = NoblePatternSymptomAtlasWeekLogs.isEmpty ? nil : NoblePatternSymptomAtlasWeekLogs.map(\.NoblePatternSymptomAtlasSeverity).reduce(0, +) / Double(NoblePatternSymptomAtlasWeekLogs.count)
+        let NoblePatternSymptomAtlasLoggedDays = Set(NoblePatternSymptomAtlasWeekLogs.map { NoblePatternSymptomAtlasCalendar.startOfDay(for: $0.NoblePatternSymptomAtlasDate) })
+        let NoblePatternSymptomAtlasQuietDays = (0..<7).compactMap { NoblePatternSymptomAtlasOffset -> Date? in
+            guard let NoblePatternSymptomAtlasDay = NoblePatternSymptomAtlasCalendar.date(byAdding: .day, value: NoblePatternSymptomAtlasOffset, to: NoblePatternSymptomAtlasStart) else { return nil }
+            return NoblePatternSymptomAtlasLoggedDays.contains(NoblePatternSymptomAtlasCalendar.startOfDay(for: NoblePatternSymptomAtlasDay)) ? nil : NoblePatternSymptomAtlasDay
+        }
+        let NoblePatternSymptomAtlasBucketCounts = Dictionary(grouping: NoblePatternSymptomAtlasWeekLogs) {
+            NoblePatternSymptomAtlasTimeBucket.NoblePatternSymptomAtlasBucket(for: $0.NoblePatternSymptomAtlasDate, calendar: NoblePatternSymptomAtlasCalendar)
+        }
+        let NoblePatternSymptomAtlasMostActiveTime = NoblePatternSymptomAtlasBucketCounts.max { $0.value.count < $1.value.count }?.key
+        let NoblePatternSymptomAtlasSummaryText: String
+        if let NoblePatternSymptomAtlasMostCommonSymptom {
+            NoblePatternSymptomAtlasSummaryText = "Possible pattern: \(NoblePatternSymptomAtlasMostCommonSymptom.rawValue) is the most common symptom this week."
+        } else {
+            NoblePatternSymptomAtlasSummaryText = "Possible pattern: This week needs more logs before a local pattern appears."
+        }
+
+        return NoblePatternSymptomAtlasWeeklyReview(
+            NoblePatternSymptomAtlasWeekStart: NoblePatternSymptomAtlasStart,
+            NoblePatternSymptomAtlasWeekEnd: NoblePatternSymptomAtlasCalendar.date(byAdding: .second, value: -1, to: NoblePatternSymptomAtlasEnd) ?? NoblePatternSymptomAtlasEnd,
+            NoblePatternSymptomAtlasLogsThisWeek: NoblePatternSymptomAtlasWeekLogs.count,
+            NoblePatternSymptomAtlasMostCommonSymptom: NoblePatternSymptomAtlasMostCommonSymptom,
+            NoblePatternSymptomAtlasAverageSeverity: NoblePatternSymptomAtlasAverageSeverity,
+            NoblePatternSymptomAtlasQuietDays: NoblePatternSymptomAtlasQuietDays,
+            NoblePatternSymptomAtlasMostActiveTime: NoblePatternSymptomAtlasMostActiveTime,
+            NoblePatternSymptomAtlasSummaryText: NoblePatternSymptomAtlasSummaryText
+        )
+    }
+
+    static func NoblePatternSymptomAtlasMakeReportPreview(
+        logs NoblePatternSymptomAtlasLogs: [NoblePatternSymptomAtlasLogEntry],
+        filter NoblePatternSymptomAtlasFilter: NoblePatternSymptomAtlasReportFilter,
+        summary NoblePatternSymptomAtlasSummary: NoblePatternSymptomAtlasPatternSummary
+    ) -> NoblePatternSymptomAtlasReportPreview {
+        var NoblePatternSymptomAtlasSections: [String] = []
+        if NoblePatternSymptomAtlasFilter.NoblePatternSymptomAtlasIncludeSymptoms { NoblePatternSymptomAtlasSections.append("Symptoms") }
+        if NoblePatternSymptomAtlasFilter.NoblePatternSymptomAtlasIncludeMedication { NoblePatternSymptomAtlasSections.append("Medication") }
+        if NoblePatternSymptomAtlasFilter.NoblePatternSymptomAtlasIncludeNotes { NoblePatternSymptomAtlasSections.append("Notes") }
+        if NoblePatternSymptomAtlasFilter.NoblePatternSymptomAtlasIncludeSleep { NoblePatternSymptomAtlasSections.append("Sleep") }
+        if NoblePatternSymptomAtlasFilter.NoblePatternSymptomAtlasIncludeStress { NoblePatternSymptomAtlasSections.append("Stress") }
+        if NoblePatternSymptomAtlasFilter.NoblePatternSymptomAtlasIncludeCharts { NoblePatternSymptomAtlasSections.append("Charts") }
+
+        return NoblePatternSymptomAtlasReportPreview(
+            NoblePatternSymptomAtlasEntryCount: NoblePatternSymptomAtlasLogs.count,
+            NoblePatternSymptomAtlasIncludedSections: NoblePatternSymptomAtlasSections,
+            NoblePatternSymptomAtlasTopSymptoms: Array(NoblePatternSymptomAtlasSummary.NoblePatternSymptomAtlasTopSymptoms.prefix(3)),
+            NoblePatternSymptomAtlasRecentEntries: Array(NoblePatternSymptomAtlasLogs.prefix(4)),
+            NoblePatternSymptomAtlasPatternSummary: NoblePatternSymptomAtlasSummary.NoblePatternSymptomAtlasRecentPattern
+        )
+    }
+
+    static func NoblePatternSymptomAtlasMakeTrackedSymptomStats(
+        for NoblePatternSymptomAtlasTrackedSymptom: NoblePatternSymptomAtlasTrackedSymptom,
+        checkIns NoblePatternSymptomAtlasCheckIns: [NoblePatternSymptomAtlasTrackedSymptomCheckIn],
+        calendar NoblePatternSymptomAtlasCalendar: Calendar = .current
+    ) -> NoblePatternSymptomAtlasTrackedSymptomStats {
+        let NoblePatternSymptomAtlasStart = NoblePatternSymptomAtlasCalendar.startOfDay(for: NoblePatternSymptomAtlasTrackedSymptom.NoblePatternSymptomAtlasStartDate)
+        let NoblePatternSymptomAtlasToday = NoblePatternSymptomAtlasCalendar.startOfDay(for: Date())
+        let NoblePatternSymptomAtlasSymptomCheckIns = NoblePatternSymptomAtlasCheckIns.filter { $0.NoblePatternSymptomAtlasSymptom == NoblePatternSymptomAtlasTrackedSymptom.NoblePatternSymptomAtlasSymptom }
+        let NoblePatternSymptomAtlasUniqueDays = Set(NoblePatternSymptomAtlasSymptomCheckIns.map { NoblePatternSymptomAtlasCalendar.startOfDay(for: $0.NoblePatternSymptomAtlasDate) })
+        let NoblePatternSymptomAtlasTotalDays = max(1, (NoblePatternSymptomAtlasCalendar.dateComponents([.day], from: NoblePatternSymptomAtlasStart, to: NoblePatternSymptomAtlasToday).day ?? 0) + 1)
+        var NoblePatternSymptomAtlasStreak = 0
+        var NoblePatternSymptomAtlasCursor = NoblePatternSymptomAtlasToday
+        while NoblePatternSymptomAtlasUniqueDays.contains(NoblePatternSymptomAtlasCursor) {
+            NoblePatternSymptomAtlasStreak += 1
+            NoblePatternSymptomAtlasCursor = NoblePatternSymptomAtlasCalendar.date(byAdding: .day, value: -1, to: NoblePatternSymptomAtlasCursor) ?? NoblePatternSymptomAtlasCursor
+        }
+
+        return NoblePatternSymptomAtlasTrackedSymptomStats(
+            NoblePatternSymptomAtlasDaysAnswered: NoblePatternSymptomAtlasUniqueDays.count,
+            NoblePatternSymptomAtlasYesCount: NoblePatternSymptomAtlasSymptomCheckIns.filter(\.NoblePatternSymptomAtlasHadSymptom).count,
+            NoblePatternSymptomAtlasNoCount: NoblePatternSymptomAtlasSymptomCheckIns.filter { !$0.NoblePatternSymptomAtlasHadSymptom }.count,
+            NoblePatternSymptomAtlasCurrentStreak: NoblePatternSymptomAtlasStreak,
+            NoblePatternSymptomAtlasMissedDays: max(0, NoblePatternSymptomAtlasTotalDays - NoblePatternSymptomAtlasUniqueDays.count)
+        )
+    }
 }
 
 enum NoblePatternSymptomAtlasExportService {
@@ -585,7 +766,7 @@ enum NoblePatternSymptomAtlasExportService {
         }
     }
 
-    private static func NoblePatternSymptomAtlasEscapeCSV(_ NoblePatternSymptomAtlasValue: String) -> String {
+    nonisolated private static func NoblePatternSymptomAtlasEscapeCSV(_ NoblePatternSymptomAtlasValue: String) -> String {
         let NoblePatternSymptomAtlasEscaped = NoblePatternSymptomAtlasValue.replacingOccurrences(of: "\"", with: "\"\"")
         return "\"\(NoblePatternSymptomAtlasEscaped)\""
     }

@@ -35,7 +35,9 @@ struct NoblePatternSymptomAtlasDashboardView: View {
     @EnvironmentObject private var NoblePatternSymptomAtlasViewModel: NoblePatternSymptomAtlasViewModel
     @State private var NoblePatternSymptomAtlasShowSettings = false
     @State private var NoblePatternSymptomAtlasShowQuickLog = false
+    @State private var NoblePatternSymptomAtlasQuickLogSymptom: NoblePatternSymptomAtlasSymptom?
     @State private var NoblePatternSymptomAtlasQuickLogSaved = false
+    @State private var NoblePatternSymptomAtlasShowWeeklyReview = false
 
     var body: some View {
         ZStack {
@@ -86,13 +88,31 @@ struct NoblePatternSymptomAtlasDashboardView: View {
 
                         NoblePatternSymptomAtlasDashboardDivider()
 
+                        ForEach(NoblePatternSymptomAtlasActiveTrackedSymptoms) { NoblePatternSymptomAtlasTrackedSymptom in
+                            NoblePatternSymptomAtlasTrackedSymptomDashboardCard(
+                                NoblePatternSymptomAtlasTrackedSymptom: NoblePatternSymptomAtlasTrackedSymptom,
+                                NoblePatternSymptomAtlasCheckIn: NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasTrackedCheckIn(for: NoblePatternSymptomAtlasTrackedSymptom.NoblePatternSymptomAtlasSymptom),
+                                NoblePatternSymptomAtlasNoAction: {
+                                    NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasAnswerTrackedSymptom(NoblePatternSymptomAtlasTrackedSymptom.NoblePatternSymptomAtlasSymptom, hadSymptom: false)
+                                },
+                                NoblePatternSymptomAtlasYesAction: {
+                                    NoblePatternSymptomAtlasQuickLogSymptom = NoblePatternSymptomAtlasTrackedSymptom.NoblePatternSymptomAtlasSymptom
+                                    NoblePatternSymptomAtlasShowQuickLog = true
+                                }
+                            )
+                        }
+
                         NoblePatternSymptomAtlasWeeklyOverviewView(
                             NoblePatternSymptomAtlasLogs: NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasLogs
                         )
+                        .onTapGesture {
+                            NoblePatternSymptomAtlasShowWeeklyReview = true
+                        }
 
                         NoblePatternSymptomAtlasLogSymptomButton(
                             NoblePatternSymptomAtlasTitle: "Quick Log",
                             NoblePatternSymptomAtlasAction: {
+                                NoblePatternSymptomAtlasQuickLogSymptom = nil
                                 NoblePatternSymptomAtlasShowQuickLog = true
                             }
                         )
@@ -112,9 +132,15 @@ struct NoblePatternSymptomAtlasDashboardView: View {
         .sheet(isPresented: $NoblePatternSymptomAtlasShowQuickLog) {
             NoblePatternSymptomAtlasQuickLogView(
                 NoblePatternSymptomAtlasIsPresented: $NoblePatternSymptomAtlasShowQuickLog,
-                NoblePatternSymptomAtlasDidSave: $NoblePatternSymptomAtlasQuickLogSaved
+                NoblePatternSymptomAtlasDidSave: $NoblePatternSymptomAtlasQuickLogSaved,
+                NoblePatternSymptomAtlasPreselectedSymptom: NoblePatternSymptomAtlasQuickLogSymptom
             )
             .environmentObject(NoblePatternSymptomAtlasViewModel)
+        }
+        .sheet(isPresented: $NoblePatternSymptomAtlasShowWeeklyReview) {
+            NoblePatternSymptomAtlasWeeklyReviewView(
+                NoblePatternSymptomAtlasReview: NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasMakeWeeklyReview()
+            )
         }
         .alert("Saved", isPresented: $NoblePatternSymptomAtlasQuickLogSaved) {
             Button("OK", role: .cancel) {}
@@ -143,6 +169,10 @@ struct NoblePatternSymptomAtlasDashboardView: View {
 
     private var NoblePatternSymptomAtlasRecentPatternSubtitle: String {
         NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasLogs.isEmpty ? "No patterns found yet.\nAdd more logs to start discovering patterns." : "Possible pattern found"
+    }
+
+    private var NoblePatternSymptomAtlasActiveTrackedSymptoms: [NoblePatternSymptomAtlasTrackedSymptom] {
+        NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasTrackedSymptoms.filter(\.NoblePatternSymptomAtlasIsActive)
     }
 }
 
@@ -283,6 +313,83 @@ struct NoblePatternSymptomAtlasDashboardDivider: View {
     var body: some View {
         Divider()
             .background(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasLine.opacity(0.18))
+    }
+}
+
+struct NoblePatternSymptomAtlasTrackedSymptomDashboardCard: View {
+    let NoblePatternSymptomAtlasTrackedSymptom: NoblePatternSymptomAtlasTrackedSymptom
+    let NoblePatternSymptomAtlasCheckIn: NoblePatternSymptomAtlasTrackedSymptomCheckIn?
+    let NoblePatternSymptomAtlasNoAction: () -> Void
+    let NoblePatternSymptomAtlasYesAction: () -> Void
+
+    var body: some View {
+        NoblePatternSymptomAtlasCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 10) {
+                    Image(systemName: "checklist")
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
+                        .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasTeal)
+                        .frame(width: 34, height: 34)
+                        .background(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasTeal.opacity(0.13))
+                        .clipShape(Circle())
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Track Daily")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionSemiboldFont)
+                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                        Text("\(NoblePatternSymptomAtlasTrackedSymptom.NoblePatternSymptomAtlasSymptom.rawValue) today?")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
+                    }
+
+                    Spacer()
+                }
+
+                if let NoblePatternSymptomAtlasCheckIn {
+                    Text("Answered today: \(NoblePatternSymptomAtlasCheckIn.NoblePatternSymptomAtlasHadSymptom ? "Yes" : "No")")
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
+                        .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSage)
+                } else {
+                    HStack(spacing: 10) {
+                        NoblePatternSymptomAtlasSmallActionButton(
+                            NoblePatternSymptomAtlasTitle: "No",
+                            NoblePatternSymptomAtlasSystemImage: "xmark",
+                            NoblePatternSymptomAtlasTint: NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted,
+                            NoblePatternSymptomAtlasAction: NoblePatternSymptomAtlasNoAction
+                        )
+
+                        NoblePatternSymptomAtlasSmallActionButton(
+                            NoblePatternSymptomAtlasTitle: "Yes",
+                            NoblePatternSymptomAtlasSystemImage: "plus",
+                            NoblePatternSymptomAtlasTint: NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSage,
+                            NoblePatternSymptomAtlasAction: NoblePatternSymptomAtlasYesAction
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct NoblePatternSymptomAtlasSmallActionButton: View {
+    let NoblePatternSymptomAtlasTitle: String
+    let NoblePatternSymptomAtlasSystemImage: String
+    let NoblePatternSymptomAtlasTint: Color
+    let NoblePatternSymptomAtlasAction: () -> Void
+
+    var body: some View {
+        Button(action: NoblePatternSymptomAtlasAction) {
+            HStack(spacing: 8) {
+                Image(systemName: NoblePatternSymptomAtlasSystemImage)
+                Text(NoblePatternSymptomAtlasTitle)
+            }
+            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
+            .foregroundColor(NoblePatternSymptomAtlasTint)
+            .frame(maxWidth: .infinity, minHeight: 40)
+            .background(NoblePatternSymptomAtlasTint.opacity(0.12))
+            .cornerRadius(14)
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -503,6 +610,98 @@ struct NoblePatternSymptomAtlasDottedLine: View {
     }
 }
 
+struct NoblePatternSymptomAtlasWeeklyReviewView: View {
+    let NoblePatternSymptomAtlasReview: NoblePatternSymptomAtlasWeeklyReview
+    @Environment(\.dismiss) private var NoblePatternSymptomAtlasDismiss
+
+    var body: some View {
+        ZStack {
+            NoblePatternSymptomAtlasBackgroundView(NoblePatternSymptomAtlasOverlayOpacity: 0.55)
+
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Weekly Review")
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasLargeTitleFont)
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
+                            Text(NoblePatternSymptomAtlasDateRange)
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                        }
+
+                        Spacer()
+
+                        Button("Done") {
+                            NoblePatternSymptomAtlasDismiss()
+                        }
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
+                    }
+
+                    NoblePatternSymptomAtlasCard {
+                        Text(NoblePatternSymptomAtlasReview.NoblePatternSymptomAtlasSummaryText)
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
+                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
+                    }
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                        NoblePatternSymptomAtlasMetricTile(NoblePatternSymptomAtlasTitle: "Logs", NoblePatternSymptomAtlasValue: "\(NoblePatternSymptomAtlasReview.NoblePatternSymptomAtlasLogsThisWeek)")
+                        NoblePatternSymptomAtlasMetricTile(NoblePatternSymptomAtlasTitle: "Most Common", NoblePatternSymptomAtlasValue: NoblePatternSymptomAtlasReview.NoblePatternSymptomAtlasMostCommonSymptom?.rawValue ?? "More logs")
+                        NoblePatternSymptomAtlasMetricTile(NoblePatternSymptomAtlasTitle: "Avg Severity", NoblePatternSymptomAtlasValue: NoblePatternSymptomAtlasReview.NoblePatternSymptomAtlasAverageSeverity.map { String(format: "%.1f", $0) } ?? "-")
+                        NoblePatternSymptomAtlasMetricTile(NoblePatternSymptomAtlasTitle: "Active Time", NoblePatternSymptomAtlasValue: NoblePatternSymptomAtlasReview.NoblePatternSymptomAtlasMostActiveTime?.rawValue ?? "-")
+                    }
+
+                    NoblePatternSymptomAtlasCard {
+                        Text("Quiet Days")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        Text(NoblePatternSymptomAtlasQuietDaysText)
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 28)
+                .padding(.bottom, 40)
+            }
+        }
+        .background(Color.clear)
+    }
+
+    private var NoblePatternSymptomAtlasDateRange: String {
+        "\(NoblePatternSymptomAtlasReview.NoblePatternSymptomAtlasWeekStart.formatted(date: .abbreviated, time: .omitted)) - \(NoblePatternSymptomAtlasReview.NoblePatternSymptomAtlasWeekEnd.formatted(date: .abbreviated, time: .omitted))"
+    }
+
+    private var NoblePatternSymptomAtlasQuietDaysText: String {
+        guard !NoblePatternSymptomAtlasReview.NoblePatternSymptomAtlasQuietDays.isEmpty else {
+            return "No quiet days in this week."
+        }
+        let NoblePatternSymptomAtlasFormatter = DateFormatter()
+        NoblePatternSymptomAtlasFormatter.dateFormat = "EEEE"
+        return NoblePatternSymptomAtlasReview.NoblePatternSymptomAtlasQuietDays.map { NoblePatternSymptomAtlasFormatter.string(from: $0) }.joined(separator: ", ")
+    }
+}
+
+struct NoblePatternSymptomAtlasMetricTile: View {
+    let NoblePatternSymptomAtlasTitle: String
+    let NoblePatternSymptomAtlasValue: String
+
+    var body: some View {
+        NoblePatternSymptomAtlasCard {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(NoblePatternSymptomAtlasTitle)
+                    .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionSemiboldFont)
+                    .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                Text(NoblePatternSymptomAtlasValue)
+                    .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                    .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.75)
+            }
+        }
+    }
+}
+
 struct NoblePatternSymptomAtlasLogSymptomButton: View {
     var NoblePatternSymptomAtlasTitle = "Log Symptom"
     var NoblePatternSymptomAtlasAction: () -> Void = {
@@ -543,6 +742,7 @@ struct NoblePatternSymptomAtlasQuickLogView: View {
     @StateObject private var NoblePatternSymptomAtlasForm = NoblePatternSymptomAtlasLogFormViewModel()
     @Binding var NoblePatternSymptomAtlasIsPresented: Bool
     @Binding var NoblePatternSymptomAtlasDidSave: Bool
+    let NoblePatternSymptomAtlasPreselectedSymptom: NoblePatternSymptomAtlasSymptom?
 
     private let NoblePatternSymptomAtlasColumns = [
         GridItem(.flexible(), spacing: 8),
@@ -676,6 +876,11 @@ struct NoblePatternSymptomAtlasQuickLogView: View {
             }
         }
         .background(Color.clear)
+        .onAppear {
+            if let NoblePatternSymptomAtlasPreselectedSymptom {
+                NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasSelectedSymptoms.insert(NoblePatternSymptomAtlasPreselectedSymptom)
+            }
+        }
     }
 
     private var NoblePatternSymptomAtlasQuickLogHeader: some View {
@@ -767,6 +972,9 @@ struct NoblePatternSymptomAtlasQuickLogView: View {
         NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasMedicationDose = ""
         NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasNotes = ""
         NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasAddLog(NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasMakeLog())
+        if let NoblePatternSymptomAtlasPreselectedSymptom {
+            NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasAnswerTrackedSymptom(NoblePatternSymptomAtlasPreselectedSymptom, hadSymptom: true)
+        }
         NoblePatternSymptomAtlasDidSave = true
         NoblePatternSymptomAtlasIsPresented = false
     }
@@ -933,8 +1141,168 @@ struct NoblePatternSymptomAtlasLogView: View {
     }
 }
 
+struct NoblePatternSymptomAtlasLogEditorView: View {
+    @EnvironmentObject private var NoblePatternSymptomAtlasViewModel: NoblePatternSymptomAtlasViewModel
+    @Environment(\.dismiss) private var NoblePatternSymptomAtlasDismiss
+    @StateObject private var NoblePatternSymptomAtlasForm: NoblePatternSymptomAtlasLogFormViewModel
+    @State private var NoblePatternSymptomAtlasShowDelete = false
+    let NoblePatternSymptomAtlasLog: NoblePatternSymptomAtlasLogEntry
+
+    init(NoblePatternSymptomAtlasLog: NoblePatternSymptomAtlasLogEntry) {
+        self.NoblePatternSymptomAtlasLog = NoblePatternSymptomAtlasLog
+        _NoblePatternSymptomAtlasForm = StateObject(wrappedValue: NoblePatternSymptomAtlasLogFormViewModel(log: NoblePatternSymptomAtlasLog))
+    }
+
+    var body: some View {
+        ZStack {
+            NoblePatternSymptomAtlasBackgroundView(NoblePatternSymptomAtlasOverlayOpacity: 0.56)
+
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        Text("Edit Entry")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasLargeTitleFont)
+                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
+                        Spacer()
+                        Button("Done") { NoblePatternSymptomAtlasDismiss() }
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                    }
+
+                    NoblePatternSymptomAtlasDetailedLogFields(NoblePatternSymptomAtlasForm: NoblePatternSymptomAtlasForm)
+
+                    Button {
+                        NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasUpdateLog(NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasMakeLog(id: NoblePatternSymptomAtlasLog.id))
+                        NoblePatternSymptomAtlasDismiss()
+                    } label: {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text("Save Changes")
+                        }
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .background(NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasCanSave ? NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSage : Color.gray.opacity(0.3))
+                        .cornerRadius(16)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasCanSave)
+
+                    Button(role: .destructive) {
+                        NoblePatternSymptomAtlasShowDelete = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Delete Entry")
+                        }
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasRose)
+                        .frame(maxWidth: .infinity, minHeight: 48)
+                        .background(Color.white.opacity(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasGlassOpacity))
+                        .cornerRadius(16)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 28)
+                .padding(.bottom, 44)
+            }
+        }
+        .background(Color.clear)
+        .alert("Delete Entry?", isPresented: $NoblePatternSymptomAtlasShowDelete) {
+            Button("Delete", role: .destructive) {
+                NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasDeleteLog(id: NoblePatternSymptomAtlasLog.id)
+                NoblePatternSymptomAtlasDismiss()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes this log from this device.")
+        }
+    }
+}
+
+struct NoblePatternSymptomAtlasDetailedLogFields: View {
+    @ObservedObject var NoblePatternSymptomAtlasForm: NoblePatternSymptomAtlasLogFormViewModel
+
+    var body: some View {
+        NoblePatternSymptomAtlasCard {
+            Text("Symptoms")
+                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                ForEach(NoblePatternSymptomAtlasSymptom.allCases) { NoblePatternSymptomAtlasSymptom in
+                    Button {
+                        if NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasSelectedSymptoms.contains(NoblePatternSymptomAtlasSymptom) {
+                            NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasSelectedSymptoms.remove(NoblePatternSymptomAtlasSymptom)
+                        } else {
+                            NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasSelectedSymptoms.insert(NoblePatternSymptomAtlasSymptom)
+                        }
+                    } label: {
+                        HStack {
+                            Text(NoblePatternSymptomAtlasSymptom.NoblePatternSymptomAtlasEmoji)
+                            Text(NoblePatternSymptomAtlasSymptom.rawValue)
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionSemiboldFont)
+                            Spacer()
+                        }
+                        .padding(10)
+                        .frame(minHeight: 44)
+                        .background(NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasSelectedSymptoms.contains(NoblePatternSymptomAtlasSymptom) ? NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSage.opacity(0.18) : NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasBackground)
+                        .cornerRadius(8)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+
+        NoblePatternSymptomAtlasCard {
+            Text("Details")
+                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+            HStack {
+                Slider(value: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasSeverity, in: 0...10, step: 1)
+                Text("\(Int(NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasSeverity))")
+                    .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasTitleFont)
+                    .frame(width: 34)
+            }
+            DatePicker("Time", selection: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasDate, displayedComponents: [.date, .hourAndMinute])
+            Stepper("Sleep: \(NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasSleepHours) hours", value: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasSleepHours, in: 0...12)
+        }
+
+        NoblePatternSymptomAtlasCard {
+            Text("Mood, Stress, Activity")
+                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+            Picker("Mood", selection: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasMood) {
+                ForEach(NoblePatternSymptomAtlasMood.allCases) { Text("\($0.NoblePatternSymptomAtlasEmoji) \($0.rawValue)").tag($0) }
+            }
+            .pickerStyle(.segmented)
+            Picker("Stress", selection: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasStress) {
+                ForEach(NoblePatternSymptomAtlasStressLevel.allCases) { Text($0.rawValue).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            Picker("Activity", selection: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasActivity) {
+                ForEach(NoblePatternSymptomAtlasActivity.allCases) { Text($0.rawValue).tag($0) }
+            }
+        }
+
+        NoblePatternSymptomAtlasCard {
+            Text("Meals, Medication, Notes")
+                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+            TextField("Meals", text: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasMeals)
+                .textFieldStyle(.roundedBorder)
+            TextField("Medication name", text: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasMedicationName)
+                .textFieldStyle(.roundedBorder)
+            TextField("Dose", text: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasMedicationDose)
+                .textFieldStyle(.roundedBorder)
+            DatePicker("Medication Time", selection: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasMedicationTime, displayedComponents: .hourAndMinute)
+            TextEditor(text: $NoblePatternSymptomAtlasForm.NoblePatternSymptomAtlasNotes)
+                .frame(minHeight: 90)
+                .padding(6)
+                .background(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasBackground.opacity(0.8))
+                .cornerRadius(8)
+        }
+    }
+}
+
 struct NoblePatternSymptomAtlasTimelineView: View {
     @EnvironmentObject private var NoblePatternSymptomAtlasViewModel: NoblePatternSymptomAtlasViewModel
+    @State private var NoblePatternSymptomAtlasEditingLog: NoblePatternSymptomAtlasLogEntry?
 
     var body: some View {
         NoblePatternSymptomAtlasScreen("Timeline") {
@@ -954,23 +1322,31 @@ struct NoblePatternSymptomAtlasTimelineView: View {
                         .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
                     VStack(spacing: 12) {
                         ForEach(NoblePatternSymptomAtlasLogs) { NoblePatternSymptomAtlasLog in
-                            HStack(alignment: .top, spacing: 12) {
-                                Text(NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasDate, style: .time)
-                                    .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionSemiboldFont)
-                                    .frame(width: 54, alignment: .leading)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(NoblePatternSymptomAtlasTimelineTitle(NoblePatternSymptomAtlasLog))
-                                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
-                                    Text("Severity \(Int(NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasSeverity))")
-                                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionFont)
-                                        .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
-                                    if let NoblePatternSymptomAtlasMedication = NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasMedication {
-                                        Text("💊 \(NoblePatternSymptomAtlasMedication.NoblePatternSymptomAtlasName)")
+                            Button {
+                                NoblePatternSymptomAtlasEditingLog = NoblePatternSymptomAtlasLog
+                            } label: {
+                                HStack(alignment: .top, spacing: 12) {
+                                    Text(NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasDate, style: .time)
+                                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionSemiboldFont)
+                                        .frame(width: 54, alignment: .leading)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(NoblePatternSymptomAtlasTimelineTitle(NoblePatternSymptomAtlasLog))
+                                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
+                                        Text("Severity \(Int(NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasSeverity))")
                                             .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionFont)
+                                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                                        if let NoblePatternSymptomAtlasMedication = NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasMedication {
+                                            Text("💊 \(NoblePatternSymptomAtlasMedication.NoblePatternSymptomAtlasName)")
+                                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionFont)
+                                        }
                                     }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionBoldFont)
+                                        .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted.opacity(0.55))
                                 }
-                                Spacer()
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.top, 4)
@@ -985,6 +1361,10 @@ struct NoblePatternSymptomAtlasTimelineView: View {
                         .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
                 }
             }
+        }
+        .sheet(item: $NoblePatternSymptomAtlasEditingLog) { NoblePatternSymptomAtlasLog in
+            NoblePatternSymptomAtlasLogEditorView(NoblePatternSymptomAtlasLog: NoblePatternSymptomAtlasLog)
+                .environmentObject(NoblePatternSymptomAtlasViewModel)
         }
     }
 
@@ -1227,30 +1607,40 @@ struct NoblePatternSymptomAtlasPatternCard: View {
 }
 
 struct NoblePatternSymptomAtlasAtlasView: View {
+    @EnvironmentObject private var NoblePatternSymptomAtlasViewModel: NoblePatternSymptomAtlasViewModel
     let NoblePatternSymptomAtlasLogs: [NoblePatternSymptomAtlasLogEntry]
+    @State private var NoblePatternSymptomAtlasSelectedSymptom: NoblePatternSymptomAtlasSymptom?
 
     var body: some View {
         NoblePatternSymptomAtlasCard {
             Text("Symptom Atlas")
                 .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
             ForEach(NoblePatternSymptomAtlasSymptom.allCases) { NoblePatternSymptomAtlasSymptom in
-                HStack {
-                    Text(NoblePatternSymptomAtlasSymptom.NoblePatternSymptomAtlasEmoji)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(NoblePatternSymptomAtlasSymptom.rawValue)
-                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
-                        Text(NoblePatternSymptomAtlasCountText(for: NoblePatternSymptomAtlasSymptom))
-                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionFont)
-                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                Button {
+                    NoblePatternSymptomAtlasSelectedSymptom = NoblePatternSymptomAtlasSymptom
+                } label: {
+                    HStack {
+                        Text(NoblePatternSymptomAtlasSymptom.NoblePatternSymptomAtlasEmoji)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(NoblePatternSymptomAtlasSymptom.rawValue)
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
+                            Text(NoblePatternSymptomAtlasCountText(for: NoblePatternSymptomAtlasSymptom))
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionFont)
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                        }
+                        Spacer()
+                        Image(systemName: NoblePatternSymptomAtlasCount(for: NoblePatternSymptomAtlasSymptom) > 0 ? "checkmark.circle.fill" : "chevron.right")
+                            .foregroundColor(NoblePatternSymptomAtlasCount(for: NoblePatternSymptomAtlasSymptom) > 0 ? NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSage : NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted.opacity(0.55))
                     }
-                    Spacer()
-                    if NoblePatternSymptomAtlasCount(for: NoblePatternSymptomAtlasSymptom) > 0 {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSage)
-                    }
+                    .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
                 .padding(.vertical, 8)
             }
+        }
+        .sheet(item: $NoblePatternSymptomAtlasSelectedSymptom) { NoblePatternSymptomAtlasSymptom in
+            NoblePatternSymptomAtlasSymptomDetailView(NoblePatternSymptomAtlasSymptom: NoblePatternSymptomAtlasSymptom)
+                .environmentObject(NoblePatternSymptomAtlasViewModel)
         }
     }
 
@@ -1264,10 +1654,152 @@ struct NoblePatternSymptomAtlasAtlasView: View {
     }
 }
 
+struct NoblePatternSymptomAtlasSymptomDetailView: View {
+    @EnvironmentObject private var NoblePatternSymptomAtlasViewModel: NoblePatternSymptomAtlasViewModel
+    @Environment(\.dismiss) private var NoblePatternSymptomAtlasDismiss
+    let NoblePatternSymptomAtlasSymptom: NoblePatternSymptomAtlasSymptom
+
+    var body: some View {
+        let NoblePatternSymptomAtlasSummary = NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasMakeSymptomDetail(for: NoblePatternSymptomAtlasSymptom)
+
+        ZStack {
+            NoblePatternSymptomAtlasBackgroundView(NoblePatternSymptomAtlasOverlayOpacity: 0.55)
+
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("\(NoblePatternSymptomAtlasSymptom.NoblePatternSymptomAtlasEmoji) \(NoblePatternSymptomAtlasSymptom.rawValue)")
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasLargeTitleFont)
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
+                            Text("Local symptom detail")
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                        }
+                        Spacer()
+                        Button("Done") { NoblePatternSymptomAtlasDismiss() }
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                    }
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                        NoblePatternSymptomAtlasMetricTile(NoblePatternSymptomAtlasTitle: "Logged", NoblePatternSymptomAtlasValue: "\(NoblePatternSymptomAtlasSummary.NoblePatternSymptomAtlasLoggedCount)")
+                        NoblePatternSymptomAtlasMetricTile(NoblePatternSymptomAtlasTitle: "Avg Severity", NoblePatternSymptomAtlasValue: NoblePatternSymptomAtlasSummary.NoblePatternSymptomAtlasAverageSeverity.map { String(format: "%.1f", $0) } ?? "-")
+                        NoblePatternSymptomAtlasMetricTile(NoblePatternSymptomAtlasTitle: "Common Time", NoblePatternSymptomAtlasValue: NoblePatternSymptomAtlasSummary.NoblePatternSymptomAtlasCommonTime?.rawValue ?? "More logs")
+                        NoblePatternSymptomAtlasMetricTile(NoblePatternSymptomAtlasTitle: "Tracking", NoblePatternSymptomAtlasValue: NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasIsTracking(NoblePatternSymptomAtlasSymptom) ? "On" : "Off")
+                    }
+
+                    NoblePatternSymptomAtlasTrackingControlCard(NoblePatternSymptomAtlasSymptom: NoblePatternSymptomAtlasSymptom)
+
+                    NoblePatternSymptomAtlasCard {
+                        Text("Related Possible Patterns")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        ForEach(NoblePatternSymptomAtlasSummary.NoblePatternSymptomAtlasRelatedPatterns, id: \.self) { NoblePatternSymptomAtlasPattern in
+                            Text(NoblePatternSymptomAtlasPattern)
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                                .padding(.vertical, 3)
+                        }
+                    }
+
+                    NoblePatternSymptomAtlasCard {
+                        Text("Recent Entries")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        if NoblePatternSymptomAtlasSummary.NoblePatternSymptomAtlasRecentEntries.isEmpty {
+                            Text("No entries for this symptom yet.")
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                        } else {
+                            ForEach(NoblePatternSymptomAtlasSummary.NoblePatternSymptomAtlasRecentEntries) { NoblePatternSymptomAtlasLog in
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasDate.formatted(date: .abbreviated, time: .shortened))
+                                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionSemiboldFont)
+                                        Text("Severity \(Int(NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasSeverity))")
+                                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionFont)
+                                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                                    }
+                                    Spacer()
+                                }
+                                .padding(.vertical, 5)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 28)
+                .padding(.bottom, 44)
+            }
+        }
+        .background(Color.clear)
+    }
+}
+
+struct NoblePatternSymptomAtlasTrackingControlCard: View {
+    @EnvironmentObject private var NoblePatternSymptomAtlasViewModel: NoblePatternSymptomAtlasViewModel
+    let NoblePatternSymptomAtlasSymptom: NoblePatternSymptomAtlasSymptom
+
+    var body: some View {
+        NoblePatternSymptomAtlasCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Track Symptom")
+                    .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+
+                if let NoblePatternSymptomAtlasTrackedSymptom = NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasActiveTrackedSymptom(for: NoblePatternSymptomAtlasSymptom) {
+                    let NoblePatternSymptomAtlasStats = NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasStats(for: NoblePatternSymptomAtlasTrackedSymptom)
+                    Text("Daily check-in is active for \(NoblePatternSymptomAtlasSymptom.rawValue).")
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                        .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                    HStack {
+                        Text("\(NoblePatternSymptomAtlasStats.NoblePatternSymptomAtlasDaysAnswered) answered")
+                        Spacer()
+                        Text("\(NoblePatternSymptomAtlasStats.NoblePatternSymptomAtlasCurrentStreak) day streak")
+                    }
+                    .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionSemiboldFont)
+                    .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                    HStack {
+                        Text("Yes \(NoblePatternSymptomAtlasStats.NoblePatternSymptomAtlasYesCount)")
+                        Spacer()
+                        Text("No \(NoblePatternSymptomAtlasStats.NoblePatternSymptomAtlasNoCount)")
+                        Spacer()
+                        Text("Missed \(NoblePatternSymptomAtlasStats.NoblePatternSymptomAtlasMissedDays)")
+                    }
+                    .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionSemiboldFont)
+                    .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+
+                    Button("Stop Tracking") {
+                        NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasStopTracking(NoblePatternSymptomAtlasSymptom)
+                    }
+                    .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
+                    .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasRose)
+                } else {
+                    Text("Add a small daily card to Dashboard for this symptom.")
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                        .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                    Button {
+                        NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasEnableTracking(NoblePatternSymptomAtlasSymptom)
+                    } label: {
+                        HStack {
+                            Image(systemName: "checklist")
+                            Text("Track Daily")
+                        }
+                        .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineSemiboldFont)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSage)
+                        .cornerRadius(14)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+}
+
 struct NoblePatternSymptomAtlasReportsView: View {
     @EnvironmentObject private var NoblePatternSymptomAtlasViewModel: NoblePatternSymptomAtlasViewModel
     @State private var NoblePatternSymptomAtlasShareItems: [Any] = []
     @State private var NoblePatternSymptomAtlasShowShare = false
+    @State private var NoblePatternSymptomAtlasShowPDFPreview = false
 
     var body: some View {
         NoblePatternSymptomAtlasScreen("Reports") {
@@ -1298,10 +1830,7 @@ struct NoblePatternSymptomAtlasReportsView: View {
             }
 
             NoblePatternSymptomAtlasExportButton(title: "Export PDF", systemImage: "doc.richtext") {
-                if let NoblePatternSymptomAtlasURL = NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasPDFURL() {
-                    NoblePatternSymptomAtlasShareItems = [NoblePatternSymptomAtlasURL]
-                    NoblePatternSymptomAtlasShowShare = true
-                }
+                NoblePatternSymptomAtlasShowPDFPreview = true
             }
 
             NoblePatternSymptomAtlasExportButton(title: "Export CSV", systemImage: "tablecells") {
@@ -1319,6 +1848,112 @@ struct NoblePatternSymptomAtlasReportsView: View {
         .sheet(isPresented: $NoblePatternSymptomAtlasShowShare) {
             NoblePatternSymptomAtlasShareSheet(NoblePatternSymptomAtlasItems: NoblePatternSymptomAtlasShareItems)
         }
+        .sheet(isPresented: $NoblePatternSymptomAtlasShowPDFPreview) {
+            NoblePatternSymptomAtlasReportPreviewView {
+                if let NoblePatternSymptomAtlasURL = NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasPDFURL() {
+                    NoblePatternSymptomAtlasShareItems = [NoblePatternSymptomAtlasURL]
+                    NoblePatternSymptomAtlasShowPDFPreview = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                        NoblePatternSymptomAtlasShowShare = true
+                    }
+                }
+            }
+            .environmentObject(NoblePatternSymptomAtlasViewModel)
+        }
+    }
+}
+
+struct NoblePatternSymptomAtlasReportPreviewView: View {
+    @EnvironmentObject private var NoblePatternSymptomAtlasViewModel: NoblePatternSymptomAtlasViewModel
+    @Environment(\.dismiss) private var NoblePatternSymptomAtlasDismiss
+    let NoblePatternSymptomAtlasExportAction: () -> Void
+
+    var body: some View {
+        let NoblePatternSymptomAtlasPreview = NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasMakeReportPreview()
+
+        ZStack {
+            NoblePatternSymptomAtlasBackgroundView(NoblePatternSymptomAtlasOverlayOpacity: 0.55)
+
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Report Preview")
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasLargeTitleFont)
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasText)
+                            Text("Generated locally on this device")
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                        }
+                        Spacer()
+                        Button("Close") { NoblePatternSymptomAtlasDismiss() }
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                    }
+
+                    NoblePatternSymptomAtlasCard {
+                        Text("\(NoblePatternSymptomAtlasPreview.NoblePatternSymptomAtlasEntryCount) entries")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        Text("\(NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasReportFilterState.NoblePatternSymptomAtlasDateFrom.formatted(date: .abbreviated, time: .omitted)) - \(NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasReportFilterState.NoblePatternSymptomAtlasDateTo.formatted(date: .abbreviated, time: .omitted))")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                    }
+
+                    NoblePatternSymptomAtlasCard {
+                        Text("Included")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        Text(NoblePatternSymptomAtlasPreview.NoblePatternSymptomAtlasIncludedSections.isEmpty ? "No sections selected" : NoblePatternSymptomAtlasPreview.NoblePatternSymptomAtlasIncludedSections.joined(separator: ", "))
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                    }
+
+                    NoblePatternSymptomAtlasCard {
+                        Text("Possible Pattern Summary")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        Text(NoblePatternSymptomAtlasPreview.NoblePatternSymptomAtlasPatternSummary)
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSubheadlineFont)
+                            .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                    }
+
+                    NoblePatternSymptomAtlasCard {
+                        Text("Top Symptoms")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        if NoblePatternSymptomAtlasPreview.NoblePatternSymptomAtlasTopSymptoms.isEmpty {
+                            Text("More logs needed.")
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                        } else {
+                            ForEach(NoblePatternSymptomAtlasPreview.NoblePatternSymptomAtlasTopSymptoms, id: \.0) { NoblePatternSymptomAtlasSymptom, NoblePatternSymptomAtlasCount in
+                                HStack {
+                                    Text("\(NoblePatternSymptomAtlasSymptom.NoblePatternSymptomAtlasEmoji) \(NoblePatternSymptomAtlasSymptom.rawValue)")
+                                    Spacer()
+                                    Text("\(NoblePatternSymptomAtlasCount)")
+                                        .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                                }
+                            }
+                        }
+                    }
+
+                    NoblePatternSymptomAtlasCard {
+                        Text("Recent Included Entries")
+                            .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasHeadlineFont)
+                        ForEach(NoblePatternSymptomAtlasPreview.NoblePatternSymptomAtlasRecentEntries) { NoblePatternSymptomAtlasLog in
+                            Text("\(NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasDate.formatted(date: .abbreviated, time: .shortened)) · Severity \(Int(NoblePatternSymptomAtlasLog.NoblePatternSymptomAtlasSeverity))")
+                                .font(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasCaptionFont)
+                                .foregroundColor(NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasMuted)
+                                .padding(.vertical, 2)
+                        }
+                    }
+
+                    NoblePatternSymptomAtlasLogSymptomButton(
+                        NoblePatternSymptomAtlasTitle: "Export PDF",
+                        NoblePatternSymptomAtlasAction: NoblePatternSymptomAtlasExportAction
+                    )
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 28)
+                .padding(.bottom, 44)
+            }
+        }
+        .background(Color.clear)
     }
 }
 
@@ -1349,6 +1984,8 @@ struct NoblePatternSymptomAtlasSettingsView: View {
     @State private var NoblePatternSymptomAtlasShowPrivacy = false
     @State private var NoblePatternSymptomAtlasShowReset = false
     @State private var NoblePatternSymptomAtlasShowShare = false
+    @State private var NoblePatternSymptomAtlasShowRemoveSampleData = false
+    @State private var NoblePatternSymptomAtlasShowStartEmpty = false
 
     var body: some View {
         ZStack {
@@ -1402,6 +2039,29 @@ struct NoblePatternSymptomAtlasSettingsView: View {
                         }
                     }
 
+                    VStack(alignment: .leading, spacing: 10) {
+                        NoblePatternSymptomAtlasSettingsSectionTitle("Sample Data")
+                        NoblePatternSymptomAtlasSettingsCard {
+                            VStack(spacing: 0) {
+                                NoblePatternSymptomAtlasSettingsButtonRow(title: "Remove Sample Data", systemImage: "minus.circle", tint: NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasOrange) {
+                                    NoblePatternSymptomAtlasShowRemoveSampleData = true
+                                }
+
+                                NoblePatternSymptomAtlasSettingsDivider()
+
+                                NoblePatternSymptomAtlasSettingsButtonRow(title: "Restore Sample Data", systemImage: "arrow.clockwise", tint: NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasSage) {
+                                    NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasRestoreSampleData()
+                                }
+
+                                NoblePatternSymptomAtlasSettingsDivider()
+
+                                NoblePatternSymptomAtlasSettingsButtonRow(title: "Start Empty", systemImage: "tray", tint: NoblePatternSymptomAtlasDesignSystem.NoblePatternSymptomAtlasRose) {
+                                    NoblePatternSymptomAtlasShowStartEmpty = true
+                                }
+                            }
+                        }
+                    }
+
                     NoblePatternSymptomAtlasSettingsCard {
                         Button {
                             NoblePatternSymptomAtlasShowReset = true
@@ -1429,6 +2089,18 @@ struct NoblePatternSymptomAtlasSettingsView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This clears saved logs and settings from this device.")
+        }
+        .alert("Remove Sample Data?", isPresented: $NoblePatternSymptomAtlasShowRemoveSampleData) {
+            Button("Remove", role: .destructive) { NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasRemoveSampleData() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes demo entries created by Noble Pattern and keeps your own logs.")
+        }
+        .alert("Start Empty?", isPresented: $NoblePatternSymptomAtlasShowStartEmpty) {
+            Button("Start Empty", role: .destructive) { NoblePatternSymptomAtlasViewModel.NoblePatternSymptomAtlasStartEmpty() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This clears logs and daily tracking from this device and prevents sample data from returning automatically.")
         }
         .sheet(isPresented: $NoblePatternSymptomAtlasShowPrivacy) {
             NoblePatternSymptomAtlasSafariView(NoblePatternSymptomAtlasURL: URL(string: "https://www.apple.com/legal/privacy/")!)
